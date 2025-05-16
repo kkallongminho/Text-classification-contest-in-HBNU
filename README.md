@@ -42,6 +42,10 @@ Split texts into 128-token segments and save them:
 
 3. Softmax Ensemble + Submission
 
+split_by_128tokens.py --> count_amount_each_labels.py --> undersampling.py --> train_and_saving_softmax_each_models.py --> ensemble.py
+
+
+
 📊 Performance Tuning Tips
 	•	Use larger batch sizes if memory allows
 	•	Tune accumulation_steps, lr, and num_epochs
