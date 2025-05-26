@@ -52,7 +52,7 @@ model_configs = [
     },
     {
         "name": "LLaMA-3B",
-        "model_name": "meta-llama/Llama-3.1-3B",
+        "model_name": "meta-llama/Llama-3.2-3B",
         "output_dir": "./output_llama_3b_lora",
         "torch_dtype": torch.float32,
         "use_lora": True,
