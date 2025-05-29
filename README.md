@@ -1,58 +1,56 @@
-🧠 LLM-based Text Classification with Token Splitting, LoRA, and Softmax Ensemble
 
-This project performs binary text classification (real vs. AI-generated) using transformer-based models like LLaMA 3.2-1B, LLaMA 3.1-3B, and Mistral-7B. It includes:
-	•	Efficient data tokenization/splitting
-	•	Class balancing via undersampling
-	•	Training with LoRA (Low-Rank Adaptation)
-	•	Softmax-based ensemble for final submission.
+⸻
+
+🧠 LLM-based Text Classification with LLaMA-3-8B and LoRA
+
+This project performs binary text classification (real vs. AI-generated) using the Meta-Llama-3-8B-Instruct model. It focuses on efficient preprocessing, lightweight fine-tuning with LoRA, and final probability-based submission using softmax.
+
+⸻
 
 🚀 Features
 
-✅ 1. Token-Based Splitting
-	•	Texts are split into chunks of 128 tokens
+✅ 1. Token-Based Preprocessing
+	•	Splits text data into 128-token chunks
 	•	Discards samples shorter than 64 tokens
-	•	Ensures uniform input size for transformer models
+	•	Maintains consistent input length for model stability
 
-✅ 2. Undersampling
-	•	Balances the dataset by reducing overrepresented class
-	•	Shuffles after sampling to improve learning stability
+✅ 2. Undersampling for Class Balance
+	•	Reduces the size of overrepresented class
+	•	Ensures balanced training data distribution
 
 ✅ 3. Training with LoRA
-	•	Applies Low-Rank Adaptation (LoRA) to reduce training cost
-	•	Trains LLaMA and Mistral models in float32
-	•	Uses CrossEntropyLoss with warmup scheduler
+	•	Uses Low-Rank Adaptation (LoRA) to fine-tune large models with reduced memory and computation cost
+	•	Trains the LLaMA-3-8B model in float32 precision
+	•	Utilizes CrossEntropyLoss with a warm-up learning rate scheduler
 
-✅ 4. Inference & Ensemble
-	•	Applies softmax to each model’s logits
-	•	Averages multiple models’ outputs for robust final prediction
-	•	Saves .npy and .csv outputs
+✅ 4. Inference with Softmax
+	•	Computes softmax probabilities from logits
+	•	Outputs the final .npy and .csv files for submission
 
+⸻
 
 🛠️ Requirements
 
-pip install torch transformers datasets peft accelerate
+pip install torch transformers peft accelerate
 
-🧪 Usage
+🧪 Usage Flow
 
-1. Data Preprocessing
+split_by_128tokens.py 
+→ count_amount_each_labels.py 
+→ undersampling.py 
+→ train_and_save_softmax_llama8b.py 
+→ save_submission.py
 
-Split texts into 128-token segments and save them:
+📊 Tuning Tips
+	•	Increase batch_size if your GPU memory allows
+	•	Adjust accumulation_steps, learning_rate, and num_epochs for better performance
 
-2. Train All Models
-
-3. Softmax Ensemble + Submission
-
-split_by_128tokens.py --> count_amount_each_labels.py --> undersampling.py --> train_and_saving_softmax_each_models.py --> ensemble.py
-
-
-
-📊 Performance Tuning Tips
-	•	Use larger batch sizes if memory allows
-	•	Tune accumulation_steps, lr, and num_epochs
-	•	Optionally experiment with BCEWithLogitsLoss for binary outputs
-
+⸻
 
 📌 Notes
-	•	All models use Hugging Face access tokens for loading private models
-	•	DataLoader uses small batch_size to avoid OOM issues on Colab
-	•	LoRA significantly reduces memory usage for large models
+	•	Hugging Face access token is required to load the LLaMA-3-8B model
+	•	Small batch sizes are used to prevent out-of-memory errors
+	•	LoRA enables efficient training of large-scale models even on limited hardware
+
+
+
