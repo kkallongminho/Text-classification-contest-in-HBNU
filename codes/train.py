@@ -14,9 +14,9 @@ torch.cuda.empty_cache(); gc.collect()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ✅ 설정
-train_path = "train.csv"  # csv 파일로 수정 필요
-test_path = "test.csv"  # csv 파일 경로로 수정 필요
-hf_token = "hf_"
+train_path = "train.csv"     # 학습 데이터 경로
+test_path = "test.csv"       # 테스트 데이터 경로
+hf_token = "hf_your_token"   # Hugging Face 토큰
 max_length = 128
 batch_size = 1
 accumulation_steps = 4
@@ -36,7 +36,7 @@ class TextDataset(Dataset):
     def __len__(self):
         return len(self.encodings["input_ids"])
 
-# ✅ 단일 모델 설정
+# ✅ 모델 설정
 model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
 output_dir = "./output_llama_8b_lora"
 torch_dtype = torch.float32
@@ -46,9 +46,10 @@ lora_config = LoraConfig(
     task_type=TaskType.SEQ_CLS, bias="none"
 )
 
-# ✅ 학습 + 추론
+# ✅ 학습 및 추론 함수
 def train_and_save():
     os.makedirs(output_dir, exist_ok=True)
+
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True, token=hf_token)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -81,6 +82,7 @@ def train_and_save():
         num_training_steps=len(train_loader) * num_epochs // accumulation_steps
     )
 
+    # ✅ 학습 루프
     model.train()
     for epoch in range(num_epochs):
         total_loss = 0
@@ -107,8 +109,17 @@ def train_and_save():
             probs = F.softmax(outputs.logits, dim=1)[:, 1]
             softmax_probs.extend(probs.cpu().numpy())
 
+    # ✅ 결과 저장
     np.save(os.path.join(output_dir, "softmax.npy"), np.array(softmax_probs))
     print(f"✅ Softmax 결과 저장 완료: {output_dir}")
+
+    # ✅ 서브미션 생성
+    submission = pd.read_csv(test_path)
+    submission["prediction"] = (np.array(softmax_probs) > 0.5).astype(int)
+    submission[["id", "prediction"]].to_csv(
+        os.path.join(output_dir, "submission.csv"), index=False
+    )
+    print(f"📄 서브미션 파일 저장 완료: {os.path.join(output_dir, 'submission.csv')}")
 
 # ✅ 실행
 train_and_save()
